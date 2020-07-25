@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <script type="text/javascript">
+        // 古いwebkit/blinkブラウザではプレフィックスが必要です
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        var audioCtx = new AudioContext();
+        const num_of_src = 2;
+        var audioElement = Array(num_of_src).fill(null);
+        // alert("before bitrate = " + audioCtx.sampleRate);
+
+        // body よりも先に読み込まれるのでエレメントを引っ張る場合は必須
+        window.onload = () => {
+            for (i = 1; i <= num_of_src; i++) {
+                audioElement[i] = document.getElementById("audio_src_" + i);
+                var track = audioCtx.createMediaElementSource(audioElement[i]);
+                track.connect(audioCtx.destination);
+
+                // 音源読み込みフォームの処理
+                document.getElementById("input_audio_" + i).addEventListener("change", function() {
+                    // input からファイルを読み出して audio_src_1 に適用
+                    const files = this.files;
+                    const file = URL.createObjectURL(files[0]);
+                    const audios = this.parentElement.getElementsByTagName("audio");
+                    audios[0].setAttribute("src", file);
+                });
+
+                // play ボタン押下時の処理
+                document.getElementById("button_play_" + i).addEventListener("click", function() {
+                    if (track) {
+                        if (audioCtx.state === "suspended") {
+                            audioCtx.resume();
+                        }
+                        const audios = this.parentElement.getElementsByTagName("audio") //.setAttribute("src", file);
+                        audios[0].play();
+                    } else {
+                        alert("トラックが読み込まれていません");
+                    }
+                });
+
+                // pause ボタン押下時の処理
+                document.getElementById("button_pause_" + i).addEventListener("click", function() {
+                    if (track) {
+                        const audios = this.parentElement.getElementsByTagName("audio") //.setAttribute("src", file);
+                        audios[0].pause();
+                    } else {
+                        alert("トラックが読み込まれていません");
+                    }
+                });
+            }
+        };
+    </script>
+</head>
+
+<body>
+    <div id="player_1">
+        <button id="button_play_1">button_play_1</button>
+        <button id="button_pause_1">button_pause_1</button>
+        <input id="input_audio_1" accept="audio/*" type="file">
+        <audio id="audio_src_1" controls></audio>
+    </div>
+    </br>
+    <div id="player_2">
+        <button id="button_play_2">button_play_2</button>
+        <button id="button_pause_2">button_pause_2</button>
+        <input id="input_audio_2" accept="audio/*" type="file">
+        <audio id="audio_src_2" controls></audio>
+    </div>
+</body>
+
+</html>
